@@ -49,13 +49,13 @@ module.exports = (db) => {
                 const formattedArticles = articles.map((article) => ({
                     titre: article.titre,
                     prix: article.prix,
-                    image: `http://localhost:3000/images/${article.image}`, // URL complète
+                    image: `http://localhost:3000/images/${article.image}`,
                     quantity: article.quantity,
                 }));
 
                 res.json({
                     id: facture.id,
-                    utilisateur: JSON.parse(facture.utilisateur), // Convertir JSON en objet
+                    utilisateur: JSON.parse(facture.utilisateur),
                     total: facture.total,
                     articles: formattedArticles,
                 });
@@ -67,9 +67,8 @@ module.exports = (db) => {
     router.post("/", (req, res) => {
         const { utilisateur, articles, total } = req.body;
 
-        console.log("Données reçues pour la facture :", req.body); // Debug
+        console.log("Données reçues pour la facture :", req.body); 
 
-        // Étape 1 : Insérer la facture dans la table "factures"
         const queryFacture = `
             INSERT INTO factures (utilisateur, total)
             VALUES (?, ?)
@@ -89,7 +88,6 @@ module.exports = (db) => {
                 return res.status(500).json({ error: "Erreur lors de la création de la facture : ID non généré." });
             }
 
-            // Étape 2 : Insérer les articles dans la table "facture_articles"
             const queryArticles = `
                 INSERT INTO facture_articles (facture_id, article_id, quantity)
                 VALUES (?, ?, ?)
@@ -120,7 +118,6 @@ module.exports = (db) => {
                 })
                 .catch((err) => {
                     console.error("Erreur lors de l'insertion des articles :", err.message);
-                    // Supprimer la facture si une erreur survient
                     db.run(`DELETE FROM factures WHERE id = ?`, [factureId], (deleteErr) => {
                         if (deleteErr) {
                             console.error("Erreur lors de la suppression de la facture incomplète :", deleteErr.message);
